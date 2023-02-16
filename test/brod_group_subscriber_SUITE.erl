@@ -50,6 +50,7 @@
         , t_async_commit/1
         , t_consumer_crash/1
         , t_assign_partitions_handles_updating_state/1
+        , t_get_workers/1
         , v2_coordinator_crash/1
         , v2_subscriber_shutdown/1
         , v2_subscriber_assignments_revoked/1
@@ -94,6 +95,7 @@ groups() ->
      , t_2_members_one_partition
      , t_async_commit
      , t_assign_partitions_handles_updating_state
+     , t_get_workers
      , v2_coordinator_crash
      , v2_subscriber_shutdown
      , v2_subscriber_assignments_revoked
@@ -277,6 +279,23 @@ t_async_acks(Config) when is_list(Config) ->
      %% Check stage:
      fun(L, Trace) ->
          check_all_messages_were_received_once(Trace, L)
+     end).
+
+t_get_workers(Config) when is_list(Config) ->
+  InitArgs = #{async_ack => true},
+  Topic = ?topic,
+  ?check_trace(
+     #{ timeout => 5000 },
+     %% Run stage:
+     begin
+       {ok, SubscriberPid} = start_subscriber(?group_id, Config, [Topic], InitArgs),
+       brod_group_subscriber_v2:get_workers(SubscriberPid)
+     end,
+     %% Check stage:
+     fun(Workers, _Trace) ->
+         ?assert(is_map(Workers)),
+         ?assert(lists:all(fun is_pid/1, maps:values(Workers))),
+         ok
      end).
 
 t_consumer_crash(Config) when is_list(Config) ->

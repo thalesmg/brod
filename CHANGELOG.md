@@ -1,5 +1,9 @@
 # Changelog
 
+- 3.16.8
+  - Add `brod_group_subscriber_v2:get_workers` function to help
+    monitor and check the health of a consumer group.
+
 - 3.16.7
   - Upgrade `kafka_protocol` from 4.1.1 to 4.1.2 to allow handling
     multiply nested wrapped secrets.
